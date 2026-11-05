@@ -50,6 +50,11 @@ class RequestBuilderFactory
             TransactionApiReportRequestBuilder::class,
             TransactionApiManagementRequestBuilder::class,
             TransactionApiAuthorizationRequestBuilder::class
+        ],
+        GatewayProvider::WP_ACCESS => [
+            // No request builders are registered yet. This foundation slot allows
+            // WpAccessConnector to route through the standard factory pipeline;
+            // operation-specific builders are added in a future approved revision.
         ]
     ];
 
