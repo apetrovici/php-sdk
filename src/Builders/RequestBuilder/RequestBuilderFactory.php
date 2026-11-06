@@ -24,6 +24,7 @@ use GlobalPayments\Api\Builders\RequestBuilder\TransactionApi\{
     TransactionApiManagementRequestBuilder,
     TransactionApiAuthorizationRequestBuilder
 };
+use GlobalPayments\Api\Builders\RequestBuilder\WpAccess\AccessHppCreateTransactionRequestBuilder;
 
 use GlobalPayments\Api\Entities\Enums\GatewayProvider;
 
@@ -52,9 +53,7 @@ class RequestBuilderFactory
             TransactionApiAuthorizationRequestBuilder::class
         ],
         GatewayProvider::WP_ACCESS => [
-            // No request builders are registered yet. This foundation slot allows
-            // WpAccessConnector to route through the standard factory pipeline;
-            // operation-specific builders are added in a future approved revision.
+            AccessHppCreateTransactionRequestBuilder::class,
         ]
     ];
 
