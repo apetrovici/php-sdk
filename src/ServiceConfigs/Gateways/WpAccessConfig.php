@@ -11,20 +11,17 @@ use GlobalPayments\Api\Gateways\WpAccessConnector;
 
 /**
  * Service configuration for the WP Access connector.
- *
- * Owns all Worldpay Access credentials and the per-environment service URL.
- * Credentials and environment selection must never be placed in a request
- * builder; request builders only assemble operation-specific request data
- * and receive this config solely so the connector can resolve transport
- * concerns (service URL) consistently with other providers' configs
- * (see `GpApiConfig::resolveServiceUrl()`).
  */
 class WpAccessConfig extends GatewayConfig
 {
-    /** HTTP Basic Auth username supplied by the Worldpay Implementation Manager. */
+    /**
+     * @var string API Auth user name.
+     */
     public ?string $username = null;
 
-    /** HTTP Basic Auth password supplied by the Worldpay Implementation Manager. */
+    /**
+     * @var string API Auth password.
+     */
     public ?string $password = null;
 
     public function __construct()

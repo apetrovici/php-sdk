@@ -56,12 +56,15 @@ class WpAccessConnector extends RestGateway implements IPaymentGateway, IAccessC
         parent::__construct();
         $this->config = $config;
 
-        // Stable headers: fixed for the lifetime of this connector instance.
-        // Content-Type matches the Accept header because this connector only
-        // ever speaks the Access HPP vendor media type (AC1-op, AC1-auth).
         $this->contentType = 'application/vnd.worldpay.payment_pages-v1.hal+json';
         $this->headers['Accept'] = 'application/vnd.worldpay.payment_pages-v1.hal+json';
         $this->headers['Authorization'] = 'Basic ' . base64_encode($config->username . ':' . $config->password);
+        // User-Agent identifies this SDK to Access (AC1-op: optional header),
+        // following the same value convention as GpApiConnector's x-gp-sdk
+        // header. A caller-supplied value via
+        // AccessHppCreateTransactionBuilder::withUserAgent() overrides this
+        // default per request in processBuilderRequest().
+        $this->headers['User-Agent'] = 'php;version=' . ReleaseVersionUtils::getReleaseVersion();
     }
 
     public function supportsTransactionType(int $transactionType): bool
@@ -180,4 +183,5 @@ class WpAccessConnector extends RestGateway implements IPaymentGateway, IAccessC
         }
     }
 }
+
 

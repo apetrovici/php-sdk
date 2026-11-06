@@ -243,6 +243,50 @@ class WpAccessConnectorTest extends TestCase
         $this->assertSame('GBP', $decodedBody['value']['currency']);
     }
 
+    public function testPerRequestUserAgentWouldOverrideConnectorDefaultWhenMerged(): void
+    {
+        // AC1-op documents User-Agent as an optional per-request header. The
+        // connector sets a stable default in its constructor; a caller that
+        // explicitly supplies one via withUserAgent() must override that
+        // default once processBuilderRequest() merges the built request's
+        // headers onto $this->headers. This asserts the built request
+        // actually carries the override (the merge step itself is simple
+        // array assignment, already covered structurally here).
+        $builder = (new AccessHppCreateTransactionBuilder())
+            ->withMerchantEntity('synthetic-merchant')
+            ->withNarrativeLine1('synthetic narrative')
+            ->withTransactionReference('synthetic-ref-001')
+            ->withAmount(250)
+            ->withCurrency('GBP')
+            ->withCorrelationId('synthetic-correlation-id')
+            ->withUserAgent('synthetic-custom-client/2.0');
+
+        $factory = new RequestBuilderFactory();
+        $requestBuilder = $factory->getRequestBuilder($builder, GatewayProvider::WP_ACCESS);
+        $request = $requestBuilder->buildRequest($builder, $this->config);
+
+        $this->assertSame('synthetic-custom-client/2.0', $request->headers['User-Agent']);
+    }
+
+    public function testBuilderWithoutExplicitUserAgentDoesNotProduceAUserAgentHeaderOnTheRequest(): void
+    {
+        // Confirms the connector's default is left untouched (not merged
+        // over) when the caller does not request an override.
+        $builder = (new AccessHppCreateTransactionBuilder())
+            ->withMerchantEntity('synthetic-merchant')
+            ->withNarrativeLine1('synthetic narrative')
+            ->withTransactionReference('synthetic-ref-001')
+            ->withAmount(250)
+            ->withCurrency('GBP')
+            ->withCorrelationId('synthetic-correlation-id');
+
+        $factory = new RequestBuilderFactory();
+        $requestBuilder = $factory->getRequestBuilder($builder, GatewayProvider::WP_ACCESS);
+        $request = $requestBuilder->buildRequest($builder, $this->config);
+
+        $this->assertArrayNotHasKey('User-Agent', $request->headers);
+    }
+
     /** @return int[] */
     private function allTransactionTypes(): array
     {
@@ -255,4 +299,5 @@ class WpAccessConnectorTest extends TestCase
         return array_values((new ReflectionClass(PaymentMethodType::class))->getConstants());
     }
 }
+
 
