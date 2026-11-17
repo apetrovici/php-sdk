@@ -3,16 +3,16 @@
 namespace GlobalPayments\Api\Tests\Unit\Mapping;
 
 use GlobalPayments\Api\Entities\Exceptions\ApiException;
-use GlobalPayments\Api\Mapping\AccessWorldpayMapping;
+use GlobalPayments\Api\Mapping\WpAccessMapping;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for AccessWorldpayMapping::mapCreateTransactionResponse(), mapping
+ * Tests for WpAccessMapping::mapCreateTransactionResponse(), mapping
  * the documented 200 response shape (`_links.self.href`, `url`) onto
  * HostedPaymentPageResponse. Response schema evidence:
  * `gp-php-sdk-fork/skills/wpaccessapi/SKILL.md:772-789`.
  */
-class AccessWorldpayMappingTest extends TestCase
+class WpAccessMappingTest extends TestCase
 {
     public function testMapsSelfLinkAndRedirectUrl(): void
     {
@@ -21,7 +21,7 @@ class AccessWorldpayMappingTest extends TestCase
             'url' => 'https://try.access.worldpay.com/hpp/synthetic-token',
         ]);
 
-        $response = AccessWorldpayMapping::mapCreateTransactionResponse($raw);
+        $response = WpAccessMapping::mapCreateTransactionResponse($raw);
 
         $this->assertSame(
             'https://access.worldpay.com/payment_pages/synthetic-ref-001',
@@ -32,7 +32,7 @@ class AccessWorldpayMappingTest extends TestCase
 
     public function testToleratesMissingFieldsByReturningNull(): void
     {
-        $response = AccessWorldpayMapping::mapCreateTransactionResponse('{}');
+        $response = WpAccessMapping::mapCreateTransactionResponse('{}');
 
         $this->assertNull($response->selfLink);
         $this->assertNull($response->redirectUrl);
@@ -42,7 +42,6 @@ class AccessWorldpayMappingTest extends TestCase
     {
         $this->expectException(ApiException::class);
 
-        AccessWorldpayMapping::mapCreateTransactionResponse('not-json');
+        WpAccessMapping::mapCreateTransactionResponse('not-json');
     }
 }
-

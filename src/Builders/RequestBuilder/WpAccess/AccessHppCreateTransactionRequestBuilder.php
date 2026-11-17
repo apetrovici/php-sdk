@@ -4,7 +4,7 @@ namespace GlobalPayments\Api\Builders\RequestBuilder\WpAccess;
 
 use GlobalPayments\Api\Builders\AccessHppCreateTransactionBuilder;
 use GlobalPayments\Api\Builders\BaseBuilder;
-use GlobalPayments\Api\Entities\AccessWorldpayRequest;
+use GlobalPayments\Api\Entities\WpAccessRequest;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
 use GlobalPayments\Api\Entities\IRequestBuilder;
@@ -55,7 +55,7 @@ class AccessHppCreateTransactionRequestBuilder implements IRequestBuilder
             $headers['User-Agent'] = $builder->userAgent;
         }
 
-        return new AccessWorldpayRequest('POST', '/payment_pages', $json, null, $headers);
+        return new WpAccessRequest('POST', '/payment_pages', $json, null, $headers);
     }
 
     public function buildRequestFromJson(mixed $jsonRequest, mixed $config): mixed
@@ -70,4 +70,3 @@ class AccessHppCreateTransactionRequestBuilder implements IRequestBuilder
         return $builder instanceof AccessHppCreateTransactionBuilder;
     }
 }
-

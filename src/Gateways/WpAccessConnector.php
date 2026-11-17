@@ -7,10 +7,10 @@ use GlobalPayments\Api\Builders\BaseBuilder;
 use GlobalPayments\Api\Builders\ManagementBuilder;
 use GlobalPayments\Api\Builders\ReportBuilder;
 use GlobalPayments\Api\Builders\RequestBuilder\RequestBuilderFactory;
-use GlobalPayments\Api\Entities\AccessWorldpayRequest;
+use GlobalPayments\Api\Entities\WpAccessRequest;
 use GlobalPayments\Api\Entities\Enums\GatewayProvider;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
-use GlobalPayments\Api\Mapping\AccessWorldpayMapping;
+use GlobalPayments\Api\Mapping\WpAccessMapping;
 use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
 
 /**
@@ -114,22 +114,22 @@ class WpAccessConnector extends RestGateway implements IPaymentGateway, IAccessC
     }
 
     /**
-     * Extension seam for direct, pre-built `AccessWorldpayRequest` execution.
+     * Extension seam for direct, pre-built `WpAccessRequest` execution.
      *
      * This does not perform request-builder lookup; callers that want the
      * standard builder pipeline must use `processBuilderRequest()` instead.
      * This seam does not send any request by itself in this revision; no
-     * caller currently constructs an `AccessWorldpayRequest` directly for a
+     * caller currently constructs a `WpAccessRequest` directly for a
      * supported operation.
      *
-     * @param AccessWorldpayRequest $request
+     * @param WpAccessRequest $request
      *
      * @return mixed
      */
-    public function executeRequest(AccessWorldpayRequest $request): mixed
+    public function executeRequest(WpAccessRequest $request): mixed
     {
         throw new UnsupportedTransactionException(
-            'Direct AccessWorldpayRequest execution is not implemented in this connector. '
+            'Direct WpAccessRequest execution is not implemented in this connector. '
             . 'Use the Access-specific fluent builders instead.'
         );
     }
@@ -154,7 +154,7 @@ class WpAccessConnector extends RestGateway implements IPaymentGateway, IAccessC
             );
         }
 
-        /** @var AccessWorldpayRequest $request */
+        /** @var WpAccessRequest $request */
         $request = $requestBuilder->buildRequest($builder, $this->config);
 
         foreach ($request->headers as $name => $value) {
@@ -168,7 +168,7 @@ class WpAccessConnector extends RestGateway implements IPaymentGateway, IAccessC
             $request->queryParams
         );
 
-        return AccessWorldpayMapping::mapCreateTransactionResponse($rawResponse);
+        return WpAccessMapping::mapCreateTransactionResponse($rawResponse);
     }
 
     private function assertSupportedManagementType(ManagementBuilder $builder): void
@@ -183,5 +183,4 @@ class WpAccessConnector extends RestGateway implements IPaymentGateway, IAccessC
         }
     }
 }
-
 

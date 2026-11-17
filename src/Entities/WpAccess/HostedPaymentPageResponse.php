@@ -1,6 +1,6 @@
 <?php
 
-namespace GlobalPayments\Api\Entities\AccessWorldpay;
+namespace GlobalPayments\Api\Entities\WpAccess;
 
 /**
  * Normalized response for the Worldpay Access HPP "Create a new transaction"
@@ -36,4 +36,3 @@ class HostedPaymentPageResponse
      */
     public array $rawResponse = [];
 }
-

@@ -2,13 +2,13 @@
 
 namespace GlobalPayments\Api\Mapping;
 
-use GlobalPayments\Api\Entities\AccessWorldpay\HostedPaymentPageResponse;
+use GlobalPayments\Api\Entities\WpAccess\HostedPaymentPageResponse;
 use GlobalPayments\Api\Entities\Exceptions\ApiException;
 
 /**
  * Response mapping for Worldpay Access HPP operations.
  */
-class AccessWorldpayMapping
+class WpAccessMapping
 {
     /**
      * Maps a raw 200 response body for `POST /payment_pages` onto a
@@ -38,4 +38,3 @@ class AccessWorldpayMapping
         return $response;
     }
 }
-

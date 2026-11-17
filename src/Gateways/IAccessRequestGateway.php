@@ -3,12 +3,12 @@
 namespace GlobalPayments\Api\Gateways;
 
 use GlobalPayments\Api\Builders\BaseBuilder;
-use GlobalPayments\Api\Entities\AccessWorldpayRequest;
+use GlobalPayments\Api\Entities\WpAccessRequest;
 
 /**
  * Transport extension seam for the WP Access connector.
  *
- * `executeRequest()` hands an already-built, validated `AccessWorldpayRequest`
+ * `executeRequest()` hands an already-built, validated `WpAccessRequest`
  * to the connector for execution; it defines no wire-level behavior itself.
  *
  * `processBuilderRequest()` is the builder-aware dispatch entry point used by
@@ -30,11 +30,11 @@ interface IAccessRequestGateway
      * predictably (e.g. by throwing an `UnsupportedTransactionException`)
      * rather than silently returning a successful-looking result.
      *
-     * @param AccessWorldpayRequest $request
+     * @param WpAccessRequest $request
      *
      * @return mixed
      */
-    public function executeRequest(AccessWorldpayRequest $request): mixed;
+    public function executeRequest(WpAccessRequest $request): mixed;
 
     /**
      * Dispatches an Access-specific fluent builder through the standard
@@ -46,5 +46,4 @@ interface IAccessRequestGateway
      */
     public function processBuilderRequest(BaseBuilder $builder): mixed;
 }
-
 

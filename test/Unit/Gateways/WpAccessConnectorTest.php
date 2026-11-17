@@ -8,7 +8,7 @@ use GlobalPayments\Api\Builders\ManagementBuilder;
 use GlobalPayments\Api\Builders\RequestBuilder\RequestBuilderFactory;
 use GlobalPayments\Api\Builders\RequestBuilder\WpAccess\AccessHppCreateTransactionRequestBuilder;
 use GlobalPayments\Api\Builders\TransactionReportBuilder;
-use GlobalPayments\Api\Entities\AccessWorldpayRequest;
+use GlobalPayments\Api\Entities\WpAccessRequest;
 use GlobalPayments\Api\Entities\Enums\GatewayProvider;
 use GlobalPayments\Api\Entities\Enums\PaymentMethodType;
 use GlobalPayments\Api\Entities\Enums\ReportType;
@@ -190,10 +190,10 @@ class WpAccessConnectorTest extends TestCase
 
     public function testExecuteRequestThrowsUnsupportedTransactionException(): void
     {
-        $request = new AccessWorldpayRequest('POST', '/synthetic-shell-fixture', '{}');
+        $request = new WpAccessRequest('POST', '/synthetic-shell-fixture', '{}');
 
         $this->expectException(UnsupportedTransactionException::class);
-        $this->expectExceptionMessage('Direct AccessWorldpayRequest execution is not implemented');
+        $this->expectExceptionMessage('Direct WpAccessRequest execution is not implemented');
 
         $this->connector->executeRequest($request);
     }
@@ -299,5 +299,4 @@ class WpAccessConnectorTest extends TestCase
         return array_values((new ReflectionClass(PaymentMethodType::class))->getConstants());
     }
 }
-
 

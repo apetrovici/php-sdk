@@ -5,7 +5,7 @@ namespace GlobalPayments\Api\Tests\Unit\Builders\RequestBuilder\WpAccess;
 use GlobalPayments\Api\Builders\AccessHppCreateTransactionBuilder;
 use GlobalPayments\Api\Builders\ManagementBuilder;
 use GlobalPayments\Api\Builders\RequestBuilder\WpAccess\AccessHppCreateTransactionRequestBuilder;
-use GlobalPayments\Api\Entities\AccessWorldpayRequest;
+use GlobalPayments\Api\Entities\WpAccessRequest;
 use GlobalPayments\Api\Entities\Enums\TransactionType;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
@@ -43,7 +43,7 @@ class AccessHppCreateTransactionRequestBuilderTest extends TestCase
         $this->assertFalse(AccessHppCreateTransactionRequestBuilder::canProcess(null));
     }
 
-    public function testBuildRequestProducesExpectedAccessWorldpayRequest(): void
+    public function testBuildRequestProducesExpectedWpAccessRequest(): void
     {
         $builder = (new AccessHppCreateTransactionBuilder())
             ->withMerchantEntity('synthetic-merchant')
@@ -56,7 +56,7 @@ class AccessHppCreateTransactionRequestBuilderTest extends TestCase
 
         $request = $this->requestBuilder->buildRequest($builder, $this->config);
 
-        $this->assertInstanceOf(AccessWorldpayRequest::class, $request);
+        $this->assertInstanceOf(WpAccessRequest::class, $request);
         $this->assertSame('POST', $request->httpVerb);
         $this->assertSame('/payment_pages', $request->endpoint);
         $this->assertSame('fixed-correlation-id', $request->headers['WP-CorrelationId']);
@@ -133,4 +133,3 @@ class AccessHppCreateTransactionRequestBuilderTest extends TestCase
         $this->requestBuilder->buildRequestFromJson('{}', $this->config);
     }
 }
-

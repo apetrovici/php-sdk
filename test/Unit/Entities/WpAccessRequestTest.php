@@ -2,25 +2,25 @@
 
 namespace GlobalPayments\Api\Tests\Unit\Entities;
 
-use GlobalPayments\Api\Entities\AccessWorldpayRequest;
+use GlobalPayments\Api\Entities\WpAccessRequest;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Shell acceptance tests for the AccessWorldpayRequest transport-neutral DTO.
+ * Shell acceptance tests for the WpAccessRequest transport-neutral DTO.
  *
  * These tests cover V5-V7 of the approved SDK Change v2 test plan. The DTO
  * is a structural carrier only; these tests do not assert any Access wire
  * contract and use only synthetic values.
  */
-class AccessWorldpayRequestTest extends TestCase
+class WpAccessRequestTest extends TestCase
 {
     public function testConstructorNormalizesVerbAndPreservesFieldsExactly(): void
     {
         $queryParams = ['limit' => 0, 'includeArchived' => false, 'cursor' => null];
         $headers = ['X-Custom-Header' => 'synthetic-value'];
 
-        $request = new AccessWorldpayRequest('post', '/synthetic/resource', '{"a":1}', $queryParams, $headers);
+        $request = new WpAccessRequest('post', '/synthetic/resource', '{"a":1}', $queryParams, $headers);
 
         $this->assertSame('POST', $request->httpVerb);
         $this->assertSame('/synthetic/resource', $request->endpoint);
@@ -31,7 +31,7 @@ class AccessWorldpayRequestTest extends TestCase
 
     public function testQueryParamsRetainFalsyScalarValues(): void
     {
-        $request = new AccessWorldpayRequest('GET', '/synthetic/resource', null, [
+        $request = new WpAccessRequest('GET', '/synthetic/resource', null, [
             'zero' => 0,
             'falseFlag' => false,
             'nullValue' => null,
@@ -50,7 +50,7 @@ class AccessWorldpayRequestTest extends TestCase
      */
     public function testBodyVariantsAreDistinguishedAndPreservedAsOpaqueStrings(?string $body): void
     {
-        $request = new AccessWorldpayRequest('POST', '/synthetic/resource', $body);
+        $request = new WpAccessRequest('POST', '/synthetic/resource', $body);
 
         $this->assertSame($body, $request->requestBody);
     }
@@ -77,7 +77,7 @@ class AccessWorldpayRequestTest extends TestCase
     ): void {
         $this->expectException(ArgumentException::class);
 
-        new AccessWorldpayRequest($httpVerb, $endpoint, null, $queryParams, $headers);
+        new WpAccessRequest($httpVerb, $endpoint, null, $queryParams, $headers);
     }
 
     public static function invalidConstructionProvider(): array
@@ -102,7 +102,7 @@ class AccessWorldpayRequestTest extends TestCase
     {
         $this->expectException(ArgumentException::class);
 
-        new AccessWorldpayRequest('POST', '/synthetic', null, null, [
+        new WpAccessRequest('POST', '/synthetic', null, null, [
             'X-Custom-Header' => 'first',
             'x-custom-header' => 'second',
         ]);
@@ -110,7 +110,7 @@ class AccessWorldpayRequestTest extends TestCase
 
     public function testValidateIsIdempotentForAnUnchangedValidRequest(): void
     {
-        $request = new AccessWorldpayRequest('POST', '/synthetic', '{}');
+        $request = new WpAccessRequest('POST', '/synthetic', '{}');
 
         // Should not throw when called again with no mutation.
         $request->validate();
@@ -121,7 +121,7 @@ class AccessWorldpayRequestTest extends TestCase
 
     public function testValidateDetectsInvalidMutationAfterConstruction(): void
     {
-        $request = new AccessWorldpayRequest('POST', '/synthetic', '{}');
+        $request = new WpAccessRequest('POST', '/synthetic', '{}');
 
         $request->endpoint = 'synthetic-without-leading-slash';
 
@@ -132,10 +132,10 @@ class AccessWorldpayRequestTest extends TestCase
 
     public function testMaskingMetadataIsIndependentBetweenTwoInstances(): void
     {
-        $first = new AccessWorldpayRequest('POST', '/synthetic', '{}');
+        $first = new WpAccessRequest('POST', '/synthetic', '{}');
         $first->addMaskingRule('secret', 'synthetic-secret-value');
 
-        $second = new AccessWorldpayRequest('POST', '/synthetic', '{}');
+        $second = new WpAccessRequest('POST', '/synthetic', '{}');
 
         $this->assertArrayHasKey('secret', $first->getMaskedValues());
         $this->assertArrayNotHasKey('secret', $second->getMaskedValues());
@@ -143,7 +143,7 @@ class AccessWorldpayRequestTest extends TestCase
 
     public function testSensitiveHeadersAreRedactedInDiagnosticsWithoutMutatingOriginalHeaders(): void
     {
-        $request = new AccessWorldpayRequest('POST', '/synthetic', null, null, [
+        $request = new WpAccessRequest('POST', '/synthetic', null, null, [
             'Authorization' => 'Basic synthetic-credential-value',
             'X-Plain-Header' => 'visible-value',
         ]);
@@ -155,4 +155,3 @@ class AccessWorldpayRequestTest extends TestCase
         $this->assertSame('Basic synthetic-credential-value', $request->headers['Authorization']);
     }
 }
-

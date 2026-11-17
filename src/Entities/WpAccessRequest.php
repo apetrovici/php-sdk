@@ -17,7 +17,7 @@ use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
  * (Access wire contract) field requirements. Those belong to a future,
  * operation-specific request builder.
  */
-class AccessWorldpayRequest
+class WpAccessRequest
 {
     public string $httpVerb;
     public string $endpoint;
@@ -66,7 +66,7 @@ class AccessWorldpayRequest
     {
         if ($this->httpVerb === '' || !preg_match('/^[A-Z]+$/', $this->httpVerb)) {
             throw new ArgumentException(
-                'AccessWorldpayRequest httpVerb must be a non-blank alphabetic token.'
+                'WpAccessRequest httpVerb must be a non-blank alphabetic token.'
             );
         }
     }
@@ -76,24 +76,24 @@ class AccessWorldpayRequest
         $endpoint = $this->endpoint;
 
         if ($endpoint === '' || trim($endpoint) === '') {
-            throw new ArgumentException('AccessWorldpayRequest endpoint must not be blank.');
+            throw new ArgumentException('WpAccessRequest endpoint must not be blank.');
         }
 
         if ($this->containsControlCharacters($endpoint)) {
             throw new ArgumentException(
-                'AccessWorldpayRequest endpoint must not contain control characters.'
+                'WpAccessRequest endpoint must not contain control characters.'
             );
         }
 
         if (strpos($endpoint, '//') === 0 || strpos($endpoint, '://') !== false) {
             throw new ArgumentException(
-                'AccessWorldpayRequest endpoint must be a relative path, not an absolute URL.'
+                'WpAccessRequest endpoint must be a relative path, not an absolute URL.'
             );
         }
 
         if (substr($endpoint, 0, 1) !== '/' || substr($endpoint, 0, 2) === '//') {
             throw new ArgumentException(
-                'AccessWorldpayRequest endpoint must be a relative path beginning with a single "/".'
+                'WpAccessRequest endpoint must be a relative path beginning with a single "/".'
             );
         }
     }
@@ -105,32 +105,32 @@ class AccessWorldpayRequest
         foreach ($this->headers as $name => $value) {
             if (!is_string($name) || trim($name) === '') {
                 throw new ArgumentException(
-                    'AccessWorldpayRequest header names must be non-blank strings.'
+                    'WpAccessRequest header names must be non-blank strings.'
                 );
             }
 
             if ($this->containsControlCharacters($name)) {
                 throw new ArgumentException(
-                    sprintf('AccessWorldpayRequest header name "%s" contains control characters.', $name)
+                    sprintf('WpAccessRequest header name "%s" contains control characters.', $name)
                 );
             }
 
             if (!is_string($value)) {
                 throw new ArgumentException(
-                    sprintf('AccessWorldpayRequest header "%s" value must be a string.', $name)
+                    sprintf('WpAccessRequest header "%s" value must be a string.', $name)
                 );
             }
 
             if ($this->containsControlCharacters($value)) {
                 throw new ArgumentException(
-                    sprintf('AccessWorldpayRequest header "%s" value contains control characters.', $name)
+                    sprintf('WpAccessRequest header "%s" value contains control characters.', $name)
                 );
             }
 
             $normalizedName = strtolower($name);
             if (isset($seenNames[$normalizedName])) {
                 throw new ArgumentException(
-                    sprintf('AccessWorldpayRequest contains duplicate header "%s".', $name)
+                    sprintf('WpAccessRequest contains duplicate header "%s".', $name)
                 );
             }
             $seenNames[$normalizedName] = true;
@@ -145,13 +145,13 @@ class AccessWorldpayRequest
 
         foreach ($this->queryParams as $key => $value) {
             if (!is_string($key) && !is_int($key)) {
-                throw new ArgumentException('AccessWorldpayRequest query parameter keys must be strings or integers.');
+                throw new ArgumentException('WpAccessRequest query parameter keys must be strings or integers.');
             }
 
             if ($value !== null && !is_scalar($value)) {
                 throw new ArgumentException(
                     sprintf(
-                        'AccessWorldpayRequest query parameter "%s" must be a scalar or null value.',
+                        'WpAccessRequest query parameter "%s" must be a scalar or null value.',
                         (string) $key
                     )
                 );
@@ -217,4 +217,3 @@ class AccessWorldpayRequest
         return $masked;
     }
 }
-
