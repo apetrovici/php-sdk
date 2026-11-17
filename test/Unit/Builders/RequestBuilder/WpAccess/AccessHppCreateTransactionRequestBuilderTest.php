@@ -9,6 +9,7 @@ use GlobalPayments\Api\Entities\WpAccessRequest;
 use GlobalPayments\Api\Entities\Enums\TransactionType;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
+use GlobalPayments\Api\Entities\WpAccess\ResultUrls;
 use GlobalPayments\Api\PaymentMethods\TransactionReference;
 use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
 use PHPUnit\Framework\TestCase;
@@ -68,6 +69,8 @@ class AccessHppCreateTransactionRequestBuilderTest extends TestCase
         $this->assertSame('synthetic-ref-001', $body['transactionReference']);
         $this->assertSame(999, $body['value']['amount']);
         $this->assertSame('EUR', $body['value']['currency']);
+        $this->assertArrayNotHasKey('description', $body);
+        $this->assertArrayNotHasKey('resultURLs', $body);
     }
 
     public function testBuildRequestOmitsUserAgentHeaderWhenNotSupplied(): void
@@ -100,6 +103,80 @@ class AccessHppCreateTransactionRequestBuilderTest extends TestCase
 
         $body = json_decode($request->requestBody, true);
         $this->assertSame('https://example.test/success', $body['resultURLs']['successURL']);
+    }
+
+    /**
+     * @dataProvider resultUrlsProvider
+     */
+    public function testBuildRequestSerializesDescriptionAndOptionalResultUrls(
+        array $properties,
+        array $expectedUrls
+    ): void {
+        $urls = new ResultUrls();
+        foreach ($properties as $property => $url) {
+            $urls->$property = $url;
+        }
+
+        $builder = (new AccessHppCreateTransactionBuilder())
+            ->withMerchantEntity('synthetic-merchant')
+            ->withNarrativeLine1('synthetic narrative')
+            ->withTransactionReference('synthetic-ref-001')
+            ->withAmount(100)
+            ->withCurrency('USD')
+            ->withDescription('Order 123')
+            ->withAdditionalField('resultURLs', ['cancelURL' => 'https://example.test/previous'])
+            ->withResultUrls($urls);
+
+        $request = $this->requestBuilder->buildRequest($builder, $this->config);
+        $body = json_decode($request->requestBody, true);
+
+        $expected = [
+            'description' => 'Order 123',
+            'merchant' => ['entity' => 'synthetic-merchant'],
+            'narrative' => ['line1' => 'synthetic narrative'],
+            'transactionReference' => 'synthetic-ref-001',
+            'value' => ['amount' => 100, 'currency' => 'USD'],
+        ];
+        if ($expectedUrls !== []) {
+            $expected['resultURLs'] = $expectedUrls;
+        }
+
+        $this->assertEquals($expected, $body);
+        $this->assertSame(100, $body['value']['amount']);
+        if ($expectedUrls !== []) {
+            $this->assertSame($expectedUrls, $body['resultURLs']);
+        } else {
+            $this->assertArrayNotHasKey('resultURLs', $body);
+        }
+    }
+
+    public static function resultUrlsProvider(): array
+    {
+        return [
+            'all endpoints' => [
+                [
+                    'successUrl' => 'https://example.test/success?order=123&source=hpp',
+                    'pendingUrl' => 'https://example.test/pending',
+                    'failureUrl' => 'https://example.test/failure',
+                    'errorUrl' => 'https://example.test/error',
+                    'cancelUrl' => 'https://example.test/cancel',
+                    'expiryUrl' => 'https://example.test/expiry',
+                ],
+                [
+                    'successURL' => 'https://example.test/success?order=123&source=hpp',
+                    'pendingURL' => 'https://example.test/pending',
+                    'failureURL' => 'https://example.test/failure',
+                    'errorURL' => 'https://example.test/error',
+                    'cancelURL' => 'https://example.test/cancel',
+                    'expiryURL' => 'https://example.test/expiry',
+                ],
+            ],
+            'partial endpoints' => [
+                ['successUrl' => 'https://example.test/success'],
+                ['successURL' => 'https://example.test/success'],
+            ],
+            'no endpoints' => [[], []],
+        ];
     }
 
     public function testBuildRequestRejectsNonMatchingBuilderType(): void

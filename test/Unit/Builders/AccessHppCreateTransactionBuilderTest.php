@@ -6,6 +6,7 @@ use GlobalPayments\Api\Builders\AccessHppCreateTransactionBuilder;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\BuilderException;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
+use GlobalPayments\Api\Entities\WpAccess\ResultUrls;
 use GlobalPayments\Api\Gateways\WpAccessConnector;
 use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
 use GlobalPayments\Api\ServicesContainer;
@@ -105,6 +106,189 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
             ['successURL' => 'https://example.test/success'],
             $builder->additionalFields['resultURLs']
         );
+    }
+
+    public function testResultUrlsDefaultToNull(): void
+    {
+        $this->assertSame([
+            'successUrl' => null,
+            'pendingUrl' => null,
+            'failureUrl' => null,
+            'errorUrl' => null,
+            'cancelUrl' => null,
+            'expiryUrl' => null,
+        ], get_object_vars(new ResultUrls()));
+    }
+
+    private function ownedResultUrls(AccessHppCreateTransactionBuilder $builder): ResultUrls
+    {
+        $property = new \ReflectionProperty(AccessHppCreateTransactionBuilder::class, 'resultUrls');
+        $property->setAccessible(true);
+
+        return $property->getValue($builder);
+    }
+
+    public function testConstructorInitializesSeparateResultUrlsForEachBuilder(): void
+    {
+        $first = new AccessHppCreateTransactionBuilder();
+        $second = new AccessHppCreateTransactionBuilder();
+
+        $this->assertNotSame($this->ownedResultUrls($first), $this->ownedResultUrls($second));
+        $this->assertSame(
+            get_object_vars(new ResultUrls()),
+            get_object_vars($this->ownedResultUrls($first))
+        );
+        $this->assertArrayNotHasKey('resultURLs', $first->additionalFields);
+    }
+
+    public function testWithResultUrlsMapsAllEndpointsAndReturnsBuilder(): void
+    {
+        $urls = new ResultUrls();
+        $urls->successUrl = 'https://example.test/success';
+        $urls->pendingUrl = 'https://example.test/pending';
+        $urls->failureUrl = 'https://example.test/failure';
+        $urls->errorUrl = 'https://example.test/error';
+        $urls->cancelUrl = 'https://example.test/cancel';
+        $urls->expiryUrl = 'https://example.test/expiry';
+        $builder = $this->validBuilder();
+
+        $this->assertSame($builder, $builder->withResultUrls($urls));
+        $this->assertNotSame($urls, $this->ownedResultUrls($builder));
+        $this->assertSame(get_object_vars($urls), get_object_vars($this->ownedResultUrls($builder)));
+        $this->assertSame([
+            'successURL' => 'https://example.test/success',
+            'pendingURL' => 'https://example.test/pending',
+            'failureURL' => 'https://example.test/failure',
+            'errorURL' => 'https://example.test/error',
+            'cancelURL' => 'https://example.test/cancel',
+            'expiryURL' => 'https://example.test/expiry',
+        ], $builder->additionalFields['resultURLs']);
+    }
+
+    public function testWithResultUrlsSnapshotsAndReplacesPreviousConfiguration(): void
+    {
+        $urls = new ResultUrls();
+        $urls->successUrl = 'https://example.test/success';
+        $builder = $this->validBuilder()->withResultUrls($urls);
+
+        $urls->successUrl = null;
+        $urls->cancelUrl = 'https://example.test/cancel';
+        $this->assertSame('https://example.test/success', $this->ownedResultUrls($builder)->successUrl);
+        $this->assertNull($this->ownedResultUrls($builder)->cancelUrl);
+        $this->assertSame(
+            ['successURL' => 'https://example.test/success'],
+            $builder->additionalFields['resultURLs']
+        );
+
+        $builder->withResultUrls($urls);
+        $this->assertSame(get_object_vars($urls), get_object_vars($this->ownedResultUrls($builder)));
+        $this->assertSame(
+            ['cancelURL' => 'https://example.test/cancel'],
+            $builder->additionalFields['resultURLs']
+        );
+
+        $builder->withResultUrls(new ResultUrls());
+        $this->assertSame([], $builder->additionalFields['resultURLs']);
+        $this->assertSame(
+            get_object_vars(new ResultUrls()),
+            get_object_vars($this->ownedResultUrls($builder))
+        );
+    }
+
+    /**
+     * @dataProvider invalidResultUrlProvider
+     */
+    public function testWithResultUrlsRejectsInvalidEndpointsWithoutChangingState(
+        string $property,
+        string $field,
+        string $invalidUrl
+    ): void {
+        $previous = ['cancelURL' => 'https://example.test/previous'];
+        $builder = $this->validBuilder()->withAdditionalField('resultURLs', $previous);
+        $urls = new ResultUrls();
+        $urls->successUrl = 'https://example.test/success';
+        $urls->$property = $invalidUrl;
+
+        try {
+            $builder->withResultUrls($urls);
+            $this->fail('Expected an invalid result URL to be rejected.');
+        } catch (ArgumentException $exception) {
+            $this->assertSame('Invalid URL format for resultURLs.' . $field, $exception->getMessage());
+        }
+
+        $this->assertSame($previous, $builder->additionalFields['resultURLs']);
+    }
+
+    public static function invalidResultUrlProvider(): array
+    {
+        $cases = [];
+        foreach ([
+            'successUrl' => 'successURL',
+            'pendingUrl' => 'pendingURL',
+            'failureUrl' => 'failureURL',
+            'errorUrl' => 'errorURL',
+            'cancelUrl' => 'cancelURL',
+            'expiryUrl' => 'expiryURL',
+        ] as $property => $field) {
+            $cases[$field . ' empty'] = [$property, $field, ''];
+            $cases[$field . ' malformed'] = [$property, $field, 'not-a-url'];
+        }
+        return $cases;
+    }
+
+    public function testWithResultUrlsReportsFirstErrorWithoutChangingState(): void
+    {
+        $previous = ['cancelURL' => 'https://example.test/previous'];
+        $previousUrls = new ResultUrls();
+        $previousUrls->cancelUrl = $previous['cancelURL'];
+        $builder = $this->validBuilder()->withResultUrls($previousUrls);
+        $urls = new ResultUrls();
+        $urls->successUrl = '';
+        $urls->expiryUrl = 'not-a-url';
+
+        try {
+            $builder->withResultUrls($urls);
+            $this->fail('Expected invalid result URLs to be rejected.');
+        } catch (ArgumentException $exception) {
+            $this->assertSame(
+                'Invalid URL format for resultURLs.successURL',
+                $exception->getMessage()
+            );
+        }
+
+        $this->assertSame($previous, $builder->additionalFields['resultURLs']);
+        $this->assertSame(
+            get_object_vars($previousUrls),
+            get_object_vars($this->ownedResultUrls($builder))
+        );
+    }
+
+    public function testWithResultUrlsAndAdditionalFieldUseLastCall(): void
+    {
+        $urls = new ResultUrls();
+        $urls->successUrl = 'https://example.test/success';
+        $genericUrls = ['cancelURL' => 'https://example.test/cancel'];
+        $builder = $this->validBuilder()->withAdditionalField('resultURLs', $genericUrls);
+
+        $builder->withResultUrls($urls);
+        $this->assertSame(
+            ['successURL' => 'https://example.test/success'],
+            $builder->additionalFields['resultURLs']
+        );
+
+        $builder->withAdditionalField('resultURLs', $genericUrls);
+        $this->assertSame($genericUrls, $builder->additionalFields['resultURLs']);
+    }
+
+    public function testWithDescriptionAndAdditionalFieldUseLastCall(): void
+    {
+        $builder = $this->validBuilder()->withAdditionalField('description', 'Original description');
+
+        $this->assertSame($builder, $builder->withDescription('Order 123'));
+        $this->assertSame('Order 123', $builder->additionalFields['description']);
+
+        $builder->withAdditionalField('description', 'Replacement description');
+        $this->assertSame('Replacement description', $builder->additionalFields['description']);
     }
 
     /**

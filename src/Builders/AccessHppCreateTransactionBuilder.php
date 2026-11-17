@@ -5,6 +5,7 @@ namespace GlobalPayments\Api\Builders;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\BuilderException;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
+use GlobalPayments\Api\Entities\WpAccess\ResultUrls;
 use GlobalPayments\Api\Gateways\IAccessRequestGateway;
 use GlobalPayments\Api\ServicesContainer;
 use GlobalPayments\Api\Utils\GenerationUtils;
@@ -15,7 +16,7 @@ use GlobalPayments\Api\Utils\GenerationUtils;
  *
  * Less common optional top-level objects (billingAddress, createToken,
  * customerAgreement, fraud, fundsTransfer, hostedCustomization,
- * hostedProperties, locale, paymentInstrument, resultURLs, riskData,
+ * hostedProperties, locale, paymentInstrument, riskData,
  * settlement, threeDS) are accepted via `withAdditionalField()` as a
  * deliberate simplification instead of a dedicated setter per nested object;
  * this builder does not validate their internal structure.
@@ -32,6 +33,19 @@ class AccessHppCreateTransactionBuilder extends BaseBuilder
 
     /** @var array<string, mixed> */
     public array $additionalFields = [];
+
+    /**
+     * Last typed configuration; additionalFields holds the outbound snapshot.
+     *
+     * @var ResultUrls
+     */
+    private ResultUrls $resultUrls;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->resultUrls = new ResultUrls();
+    }
 
     public function withMerchantEntity(string $merchantEntity): self
     {
@@ -94,6 +108,60 @@ class AccessHppCreateTransactionBuilder extends BaseBuilder
     {
         $this->userAgent = $userAgent;
         return $this;
+    }
+
+    /**
+     * Sets optional text displayed to the customer on the payment pages.
+     */
+    public function withDescription(string $description): self
+    {
+        return $this->withAdditionalField('description', $description);
+    }
+
+    /**
+     * Replaces the optional result URLs with a validated snapshot.
+     * Null endpoints are omitted; an all-null object clears previous URLs.
+     * The last call to this method or withAdditionalField('resultURLs', ...) wins.
+     *
+     * $urls = new ResultUrls();
+     * $urls->successUrl = 'https://example.test/payment/success';
+     * $builder->withResultUrls($urls);
+     *
+     * Validation rules are defined by ResultUrls::validate().
+     *
+     * @throws ArgumentException When a supplied endpoint is not a valid URL.
+     */
+    public function withResultUrls(ResultUrls $resultUrls): self
+    {
+        $errors = $resultUrls->validate();
+        if ($errors !== []) {
+            throw new ArgumentException($errors[0]);
+        }
+
+        $this->resultUrls->successUrl = $resultUrls->successUrl;
+        $this->resultUrls->pendingUrl = $resultUrls->pendingUrl;
+        $this->resultUrls->failureUrl = $resultUrls->failureUrl;
+        $this->resultUrls->errorUrl = $resultUrls->errorUrl;
+        $this->resultUrls->cancelUrl = $resultUrls->cancelUrl;
+        $this->resultUrls->expiryUrl = $resultUrls->expiryUrl;
+
+        $mappedUrls = [];
+        foreach ([
+            'successURL' => $this->resultUrls->successUrl,
+            'pendingURL' => $this->resultUrls->pendingUrl,
+            'failureURL' => $this->resultUrls->failureUrl,
+            'errorURL' => $this->resultUrls->errorUrl,
+            'cancelURL' => $this->resultUrls->cancelUrl,
+            'expiryURL' => $this->resultUrls->expiryUrl,
+        ] as $field => $url) {
+            if ($url === null) {
+                continue;
+            }
+
+            $mappedUrls[$field] = $url;
+        }
+
+        return $this->withAdditionalField('resultURLs', $mappedUrls);
     }
 
     /**
