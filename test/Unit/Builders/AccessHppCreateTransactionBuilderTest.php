@@ -133,4 +133,32 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
 
         $this->assertSame('USD', $builder->currency);
     }
+
+    /**
+     * @dataProvider invalidAmountProvider
+     */
+    public function testWithAmountRejectsNonPositiveAmounts(int $amount): void
+    {
+        $this->expectException(ArgumentException::class);
+        $this->expectExceptionMessage(
+            'Invalid order amount. Amount must be a positive integer in minor units.'
+        );
+
+        (new AccessHppCreateTransactionBuilder())->withAmount($amount);
+    }
+
+    public static function invalidAmountProvider(): array
+    {
+        return [
+            'zero amount' => [0],
+            'negative amount' => [-1],
+        ];
+    }
+
+    public function testWithAmountPreservesPositiveIntegerAmount(): void
+    {
+        $builder = (new AccessHppCreateTransactionBuilder())->withAmount(1234);
+
+        $this->assertSame(1234, $builder->amount);
+    }
 }

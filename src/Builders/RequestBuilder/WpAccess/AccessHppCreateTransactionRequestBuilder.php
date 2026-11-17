@@ -14,9 +14,6 @@ use GlobalPayments\Api\Utils\ArrayUtils;
 /**
  * Builds the wire request for the Worldpay Access HPP "Create a new
  * transaction" operation (`POST /payment_pages`).
- *
- * Request schema evidence: `gp-php-sdk-fork/skills/wpaccessapi/SKILL.md:58-721`.
- * Registered against `GatewayProvider::WP_ACCESS` in `RequestBuilderFactory`.
  */
 class AccessHppCreateTransactionRequestBuilder implements IRequestBuilder
 {

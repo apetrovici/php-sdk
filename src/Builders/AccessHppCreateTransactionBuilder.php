@@ -53,6 +53,12 @@ class AccessHppCreateTransactionBuilder extends BaseBuilder
 
     public function withAmount(int $amount): self
     {
+        if ($amount <= 0) {
+            throw new ArgumentException(
+                'Invalid order amount. Amount must be a positive integer in minor units.'
+            );
+        }
+
         $this->amount = $amount;
         return $this;
     }
