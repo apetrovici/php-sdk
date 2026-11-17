@@ -62,6 +62,13 @@ class WpAccessConfig extends GatewayConfig
     {
         parent::validate();
 
+        if ($this->environment !== Environment::TEST &&
+            $this->environment !== Environment::PRODUCTION) {
+            throw new ConfigurationException(
+                'Environment must be either TEST or PRODUCTION for WP Access.'
+            );
+        }
+
         if (empty($this->username) || empty($this->password)) {
             throw new ConfigurationException(
                 'WP Access requires both username and password (HTTP Basic Auth credentials).'

@@ -48,6 +48,28 @@ class WpAccessConfigTest extends TestCase
         $this->assertTrue($config->validated);
     }
 
+    /**
+     * @dataProvider unsupportedEnvironmentProvider
+     */
+    public function testValidateRejectsUnsupportedEnvironment(string $environment): void
+    {
+        $config = $this->syntheticConfig();
+        $config->environment = $environment;
+
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage('Environment must be either TEST or PRODUCTION for WP Access.');
+
+        $config->validate();
+    }
+
+    public static function unsupportedEnvironmentProvider(): array
+    {
+        return [
+            'staging' => ['STAGING'],
+            'empty' => [''],
+        ];
+    }
+
     public function testResolveServiceUrlReturnsTestUrlByDefault(): void
     {
         $config = $this->syntheticConfig();
@@ -118,4 +140,3 @@ class WpAccessConfigTest extends TestCase
         $client->processReport($builder);
     }
 }
-
