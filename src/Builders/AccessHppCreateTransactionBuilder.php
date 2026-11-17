@@ -2,6 +2,7 @@
 
 namespace GlobalPayments\Api\Builders;
 
+use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\BuilderException;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
 use GlobalPayments\Api\Gateways\IAccessRequestGateway;
@@ -11,12 +12,6 @@ use GlobalPayments\Api\Utils\GenerationUtils;
 /**
  * Fluent builder for the Worldpay Access HPP "Create a new transaction"
  * operation (`POST /payment_pages`).
- *
- * Required fields (`gp-php-sdk-fork/skills/wpaccessapi/SKILL.md:82-721`):
- * `merchant.entity`, `narrative.line1`, `transactionReference`, `value.amount`.
- * `value.currency` is treated as required by this builder even though the
- * reviewed contract text does not explicitly flag it `required` (a real
- * payment amount is meaningless without a currency); see change-file gap G14.
  *
  * Less common optional top-level objects (billingAddress, createToken,
  * customerAgreement, fraud, fundsTransfer, hostedCustomization,
@@ -64,7 +59,11 @@ class AccessHppCreateTransactionBuilder extends BaseBuilder
 
     public function withCurrency(string $currency): self
     {
-        $this->currency = $currency;
+        if (strlen($currency) !== 3) {
+            throw new ArgumentException('Currency must be a 3-character code');
+        }
+
+        $this->currency = strtoupper($currency);
         return $this;
     }
 
@@ -150,4 +149,3 @@ class AccessHppCreateTransactionBuilder extends BaseBuilder
         }
     }
 }
-

@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for WpAccessMapping::mapCreateTransactionResponse(), mapping
  * the documented 200 response shape (`_links.self.href`, `url`) onto
- * HostedPaymentPageResponse. Response schema evidence:
+ * AccessHPPResponse. Response schema evidence:
  * `gp-php-sdk-fork/skills/wpaccessapi/SKILL.md:772-789`.
  */
 class WpAccessMappingTest extends TestCase

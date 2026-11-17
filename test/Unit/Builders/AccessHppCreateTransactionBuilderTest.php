@@ -3,6 +3,7 @@
 namespace GlobalPayments\Api\Tests\Unit\Builders;
 
 use GlobalPayments\Api\Builders\AccessHppCreateTransactionBuilder;
+use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\BuilderException;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
 use GlobalPayments\Api\Gateways\WpAccessConnector;
@@ -105,5 +106,31 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
             $builder->additionalFields['resultURLs']
         );
     }
-}
 
+    /**
+     * @dataProvider invalidCurrencyProvider
+     */
+    public function testWithCurrencyRejectsCodesThatAreNotThreeCharacters(string $currency): void
+    {
+        $this->expectException(ArgumentException::class);
+        $this->expectExceptionMessage('Currency must be a 3-character code');
+
+        (new AccessHppCreateTransactionBuilder())->withCurrency($currency);
+    }
+
+    public static function invalidCurrencyProvider(): array
+    {
+        return [
+            'empty currency' => [''],
+            'two-character currency' => ['US'],
+            'four-character currency' => ['USDX'],
+        ];
+    }
+
+    public function testWithCurrencyNormalizesCodeToUppercase(): void
+    {
+        $builder = (new AccessHppCreateTransactionBuilder())->withCurrency('usd');
+
+        $this->assertSame('USD', $builder->currency);
+    }
+}

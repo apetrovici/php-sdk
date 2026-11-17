@@ -5,13 +5,8 @@ namespace GlobalPayments\Api\Entities\WpAccess;
 /**
  * Normalized response for the Worldpay Access HPP "Create a new transaction"
  * operation (`POST /payment_pages`).
- *
- * Field mapping is documented in
- * `gp-php-sdk-fork/skills/wpaccessapi/SKILL.md` (lines 772-789):
- * - `_links.self.href` -> `selfLink`
- * - `url` -> `redirectUrl`
  */
-class HostedPaymentPageResponse
+class AccessHPPResponse
 {
     /**
      * Link to query the Payment Queries API by `transactionReference` to
