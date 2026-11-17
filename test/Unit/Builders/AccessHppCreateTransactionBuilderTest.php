@@ -135,6 +135,34 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
     }
 
     /**
+     * @dataProvider invalidTransactionReferenceProvider
+     */
+    public function testWithTransactionReferenceRejectsBlankValues(string $transactionReference): void
+    {
+        $this->expectException(ArgumentException::class);
+        $this->expectExceptionMessage('Transaction reference must not be empty.');
+
+        (new AccessHppCreateTransactionBuilder())->withTransactionReference($transactionReference);
+    }
+
+    public static function invalidTransactionReferenceProvider(): array
+    {
+        return [
+            'empty reference' => [''],
+            'whitespace-only reference' => [" \t\n"],
+        ];
+    }
+
+    public function testWithTransactionReferencePreservesNonblankValue(): void
+    {
+        $transactionReference = ' reference-123 ';
+        $builder = (new AccessHppCreateTransactionBuilder())
+            ->withTransactionReference($transactionReference);
+
+        $this->assertSame($transactionReference, $builder->transactionReference);
+    }
+
+    /**
      * @dataProvider invalidAmountProvider
      */
     public function testWithAmountRejectsNonPositiveAmounts(int $amount): void

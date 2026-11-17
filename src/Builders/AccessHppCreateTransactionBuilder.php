@@ -47,6 +47,12 @@ class AccessHppCreateTransactionBuilder extends BaseBuilder
 
     public function withTransactionReference(string $transactionReference): self
     {
+        if (trim($transactionReference) === '') {
+            throw new ArgumentException(
+                'Transaction reference must not be empty.'
+            );
+        }
+
         $this->transactionReference = $transactionReference;
         return $this;
     }
