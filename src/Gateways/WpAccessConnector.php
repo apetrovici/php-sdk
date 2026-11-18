@@ -12,6 +12,7 @@ use GlobalPayments\Api\Entities\Enums\GatewayProvider;
 use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
 use GlobalPayments\Api\Mapping\WpAccessMapping;
 use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
+use GlobalPayments\Api\Utils\ReleaseVersionUtils;
 
 /**
  * WP Access RestGateway connector.

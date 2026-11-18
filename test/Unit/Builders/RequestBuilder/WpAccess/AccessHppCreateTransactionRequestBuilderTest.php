@@ -127,6 +127,7 @@ class AccessHppCreateTransactionRequestBuilderTest extends TestCase
             ->withCurrency('USD')
             ->withDescription('Order 123')
             ->withAdditionalField('resultURLs', ['cancelURL' => 'https://example.test/previous'])
+            ->withCorrelationId('fixed-correlation-id')
             ->withResultUrls($urls);
 
         $request = $this->requestBuilder->buildRequest($builder, $this->config);
