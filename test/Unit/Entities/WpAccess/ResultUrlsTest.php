@@ -3,6 +3,7 @@
 namespace GlobalPayments\Api\Tests\Unit\Entities\WpAccess;
 
 use GlobalPayments\Api\Entities\WpAccess\ResultUrls;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ResultUrlsTest extends TestCase
@@ -28,6 +29,7 @@ class ResultUrlsTest extends TestCase
     /**
      * @dataProvider invalidUrlProvider
      */
+    #[DataProvider('invalidUrlProvider')]
     public function testValidateReportsInvalidEndpointWithoutMutatingValues(
         string $property,
         string $field,

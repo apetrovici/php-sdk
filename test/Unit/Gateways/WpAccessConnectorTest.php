@@ -21,6 +21,7 @@ use GlobalPayments\Api\Gateways\IPaymentGateway;
 use GlobalPayments\Api\Gateways\WpAccessConnector;
 use GlobalPayments\Api\PaymentMethods\TransactionReference;
 use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -117,6 +118,7 @@ class WpAccessConnectorTest extends TestCase
     /**
      * @dataProvider managementTransactionTypeProvider
      */
+    #[DataProvider('managementTransactionTypeProvider')]
     public function testManageTransactionThrowsUnsupportedTransactionExceptionForEveryTransactionType(
         int $transactionType
     ): void {
@@ -299,4 +301,3 @@ class WpAccessConnectorTest extends TestCase
         return array_values((new ReflectionClass(PaymentMethodType::class))->getConstants());
     }
 }
-

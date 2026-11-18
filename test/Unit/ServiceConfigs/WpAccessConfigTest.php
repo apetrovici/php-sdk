@@ -12,6 +12,7 @@ use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
 use GlobalPayments\Api\Gateways\WpAccessConnector;
 use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
 use GlobalPayments\Api\ServicesContainer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -51,6 +52,7 @@ class WpAccessConfigTest extends TestCase
     /**
      * @dataProvider unsupportedEnvironmentProvider
      */
+    #[DataProvider('unsupportedEnvironmentProvider')]
     public function testValidateRejectsUnsupportedEnvironment(string $environment): void
     {
         $config = $this->syntheticConfig();

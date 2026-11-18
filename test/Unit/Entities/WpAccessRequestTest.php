@@ -4,6 +4,7 @@ namespace GlobalPayments\Api\Tests\Unit\Entities;
 
 use GlobalPayments\Api\Entities\WpAccessRequest;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -48,6 +49,7 @@ class WpAccessRequestTest extends TestCase
     /**
      * @dataProvider bodyVariantProvider
      */
+    #[DataProvider('bodyVariantProvider')]
     public function testBodyVariantsAreDistinguishedAndPreservedAsOpaqueStrings(?string $body): void
     {
         $request = new WpAccessRequest('POST', '/synthetic/resource', $body);
@@ -69,6 +71,7 @@ class WpAccessRequestTest extends TestCase
     /**
      * @dataProvider invalidConstructionProvider
      */
+    #[DataProvider('invalidConstructionProvider')]
     public function testConstructorRejectsInvalidStructuralInput(
         string $httpVerb,
         string $endpoint,

@@ -5,11 +5,8 @@ namespace GlobalPayments\Api\Tests\Unit\Builders;
 use GlobalPayments\Api\Builders\AccessHppCreateTransactionBuilder;
 use GlobalPayments\Api\Entities\Exceptions\ArgumentException;
 use GlobalPayments\Api\Entities\Exceptions\BuilderException;
-use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
 use GlobalPayments\Api\Entities\WpAccess\ResultUrls;
-use GlobalPayments\Api\Gateways\WpAccessConnector;
-use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
-use GlobalPayments\Api\ServicesContainer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,6 +28,7 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
     /**
      * @dataProvider missingRequiredFieldProvider
      */
+    #[DataProvider('missingRequiredFieldProvider')]
     public function testExecuteThrowsBuilderExceptionWhenRequiredFieldMissing(
         \Closure $mutate
     ): void {
@@ -198,6 +196,7 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
     /**
      * @dataProvider invalidResultUrlProvider
      */
+    #[DataProvider('invalidResultUrlProvider')]
     public function testWithResultUrlsRejectsInvalidEndpointsWithoutChangingState(
         string $property,
         string $field,
@@ -294,6 +293,7 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
     /**
      * @dataProvider invalidCurrencyProvider
      */
+    #[DataProvider('invalidCurrencyProvider')]
     public function testWithCurrencyRejectsCodesThatAreNotThreeCharacters(string $currency): void
     {
         $this->expectException(ArgumentException::class);
@@ -321,6 +321,7 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
     /**
      * @dataProvider invalidTransactionReferenceProvider
      */
+    #[DataProvider('invalidTransactionReferenceProvider')]
     public function testWithTransactionReferenceRejectsBlankValues(string $transactionReference): void
     {
         $this->expectException(ArgumentException::class);
@@ -349,6 +350,7 @@ class AccessHppCreateTransactionBuilderTest extends TestCase
     /**
      * @dataProvider invalidAmountProvider
      */
+    #[DataProvider('invalidAmountProvider')]
     public function testWithAmountRejectsNonPositiveAmounts(int $amount): void
     {
         $this->expectException(ArgumentException::class);

@@ -12,6 +12,7 @@ use GlobalPayments\Api\Entities\Exceptions\UnsupportedTransactionException;
 use GlobalPayments\Api\Entities\WpAccess\ResultUrls;
 use GlobalPayments\Api\PaymentMethods\TransactionReference;
 use GlobalPayments\Api\ServiceConfigs\Gateways\WpAccessConfig;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -108,6 +109,7 @@ class AccessHppCreateTransactionRequestBuilderTest extends TestCase
     /**
      * @dataProvider resultUrlsProvider
      */
+    #[DataProvider('resultUrlsProvider')]
     public function testBuildRequestSerializesDescriptionAndOptionalResultUrls(
         array $properties,
         array $expectedUrls
