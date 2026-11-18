@@ -42,4 +42,6 @@ class ServiceEndpoints extends Enum
     const BILLPAY_TEST = "https://testing.heartlandpaymentservices.net";
     const BILLPAY_CERTIFICATION = "https://staging.heartlandpaymentservices.net";
     const BILLPAY_PRODUCTION = "https://heartlandpaymentservices.net";
+    const ACCESS_WORLDPAY_TEST = "https://try.access.worldpay.com";
+    const ACCESS_WORLDPAY_PRODUCTION = "https://access.worldpay.com";
 }

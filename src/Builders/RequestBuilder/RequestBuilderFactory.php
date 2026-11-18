@@ -24,6 +24,7 @@ use GlobalPayments\Api\Builders\RequestBuilder\TransactionApi\{
     TransactionApiManagementRequestBuilder,
     TransactionApiAuthorizationRequestBuilder
 };
+use GlobalPayments\Api\Builders\RequestBuilder\WpAccess\AccessHppCreateTransactionRequestBuilder;
 
 use GlobalPayments\Api\Entities\Enums\GatewayProvider;
 
@@ -50,6 +51,9 @@ class RequestBuilderFactory
             TransactionApiReportRequestBuilder::class,
             TransactionApiManagementRequestBuilder::class,
             TransactionApiAuthorizationRequestBuilder::class
+        ],
+        GatewayProvider::WP_ACCESS => [
+            AccessHppCreateTransactionRequestBuilder::class,
         ]
     ];
 

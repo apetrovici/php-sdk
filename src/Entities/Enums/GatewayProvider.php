@@ -13,4 +13,5 @@ class GatewayProvider extends Enum
     const GP_API          = 'GP-API';
     const TRANSACTION_API = 'TRANSACTION-API';
     const UPA             = 'UPA';
+    const WP_ACCESS       = 'WP-ACCESS';
 }
